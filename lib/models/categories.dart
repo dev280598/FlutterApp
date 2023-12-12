@@ -49,7 +49,6 @@ class Item {
   final String name;
   final Color color;
   final int price = 42;
-
   Item(this.id, this.name)
   // To make the sample app look nicer, each item is given one of the
   // Material Design primary colors.

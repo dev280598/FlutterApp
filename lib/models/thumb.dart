@@ -1,25 +1,18 @@
-class Photo {
-  final int albumId;
-  final int id;
-  final String title;
-  final String url;
-  final String thumbnailUrl;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const Photo({
-    required this.albumId,
-    required this.id,
-    required this.title,
-    required this.url,
-    required this.thumbnailUrl,
-  });
+part 'thumb.freezed.dart';
 
-  factory Photo.fromJson(Map<String, dynamic> json) {
-    return Photo(
-      albumId: json['albumId'] as int,
-      id: json['id'] as int,
-      title: json['title'] as String,
-      url: json['url'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String,
-    );
-  }
+part 'thumb.g.dart';
+
+@unfreezed
+class Photo with _$Photo {
+  factory Photo({
+    required int albumId,
+    required final int id,
+    required String title,
+    required String url,
+    required String thumbnailUrl,
+  }) = _Photo;
+
+  factory Photo.fromJson(Map<String, dynamic> json) => _$PhotoFromJson(json);
 }

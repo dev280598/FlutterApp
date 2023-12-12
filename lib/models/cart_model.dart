@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import 'package:flutter/foundation.dart';
-import 'categories.dart';
+import 'package:flutter_app/models/categories.dart';
 
 class CartModel extends ChangeNotifier {
   /// The private field backing [catalog].
@@ -44,6 +44,7 @@ class CartModel extends ChangeNotifier {
     // you change the model.
     notifyListeners();
   }
+
   void removeAll() {
     _itemIds.clear();
     // Don't forget to tell dependent widgets to rebuild _every time_

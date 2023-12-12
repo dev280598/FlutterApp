@@ -3,9 +3,8 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_app/models/cart_model.dart';
 import 'package:provider/provider.dart';
-
-import '../models/cart_model.dart';
 
 class MyCart extends StatelessWidget {
   const MyCart({super.key});
@@ -21,7 +20,7 @@ class MyCart extends StatelessWidget {
             onPressed: () {
               Provider.of<CartModel>(context, listen: false).removeAll();
             },
-            icon: Text("Clear"),
+            icon: const Text('Clear'),
           ),
         ],
       ),
@@ -36,7 +35,7 @@ class MyCart extends StatelessWidget {
               ),
             ),
             const Divider(height: 4, color: Colors.black),
-            _CartTotal()
+            _CartTotal(),
           ],
         ),
       ),
@@ -90,13 +89,15 @@ class _CartTotal extends StatelessWidget {
             // The important thing is that it will not rebuild
             // the rest of the widgets in this build method.
             Consumer<CartModel>(
-                builder: (context, cart, child) =>
-                    Text('\$${cart.totalPrice}', style: hugeStyle)),
+              builder: (context, cart, child) =>
+                  Text('\$${cart.totalPrice}', style: hugeStyle),
+            ),
             const SizedBox(width: 24),
             FilledButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Buying not supported yet.')));
+                  const SnackBar(content: Text('Buying not supported yet.')),
+                );
               },
               style: TextButton.styleFrom(foregroundColor: Colors.white),
               child: const Text('BUY'),
@@ -114,32 +115,53 @@ class _CartEmpty extends StatelessWidget {
     var hugeStyle =
         Theme.of(context).textTheme.displayLarge!.copyWith(fontSize: 48);
 
-    return Container(
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Another way to listen to a model's change is to include
-            // the Consumer widget. This widget will automatically listen
-            // to CartModel and rerun its builder on every change.
-            //
-            // The important thing is that it will not rebuild
-            // the rest of the widgets in this build method.
-            Consumer<CartModel>(
-                builder: (context, cart, child) =>
-                    Text('\$${cart.totalPrice}', style: hugeStyle)),
-            const SizedBox(width: 24),
-            FilledButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Buying not supported yet.')));
-              },
-              style: TextButton.styleFrom(foregroundColor: Colors.white),
-              child: const Text('BUY'),
-            ),
-          ],
-        ),
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Another way to listen to a model's change is to include
+          // the Consumer widget. This widget will automatically listen
+          // to CartModel and rerun its builder on every change.
+          //
+          // The important thing is that it will not rebuild
+          // the rest of the widgets in this build method.
+          Consumer<CartModel>(
+            builder: (context, cart, child) =>
+                Text('\$${cart.totalPrice}', style: hugeStyle),
+          ),
+          const SizedBox(width: 24),
+          FilledButton(
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Buying not supported yet.')),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.white),
+            child: const Text('BUY'),
+          ),
+        ],
       ),
     );
   }
+}
+
+sealed class Status {
+  Status();
+}
+
+class Success extends Status {
+  final dynamic data;
+  final String? code;
+
+  Success({this.data, this.code});
+}
+
+class Error extends Status {
+  final String message;
+
+  Error({required this.message});
+}
+
+class Loading extends Status {
+  Loading();
 }

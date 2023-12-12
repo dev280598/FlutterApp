@@ -1,3 +1,4 @@
+import 'package:flutter_app/models/thumb.dart';
 import 'package:injectable/injectable.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -5,7 +6,7 @@ import '../domain/repository/data_repo.dart';
 import '../models/movie.dart';
 
 @injectable
-class MoviesBloc  {
+class MoviesBloc {
   final Repository repository;
 
   MoviesBloc({required this.repository});
@@ -15,11 +16,16 @@ class MoviesBloc  {
   Stream<ItemModel> get allMovies => _moviesFetcher.stream;
 
   fetchAllMovies() async {
-
     await repository.fetchAllMovies().then((value) {
       value.fold((l) => null, (r) {
         _moviesFetcher.sink.add(r);
       });
+    });
+  }
+
+  Future<List<Photo>> getPhotos() async {
+    return await repository.fetchPhotos().then((value) {
+      return value.fold((l) => [], (r) => r);
     });
   }
 

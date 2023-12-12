@@ -8,10 +8,11 @@ const String ACCEPT = "accept";
 const String AUTHORIZATION = "authorization";
 const String DEFAULT_LANGUAGE = "en";
 const String TOKEN = "token";
-const String BASE_URL = "https://api.example.com";
+const String coreHost = "https://api.example.com";
+const String testHost = 'https://jsonplaceholder.typicode.com';
 
 class DioFactory {
-  Dio getDio() {
+  Dio getDio({bool isCore = true}) {
     Dio dio = Dio();
 
     Map<String, String> headers = {
@@ -22,10 +23,22 @@ class DioFactory {
     };
 
     dio.options = BaseOptions(
-      baseUrl: BASE_URL,
+      baseUrl: isCore ? coreHost : testHost,
       headers: headers,
-      // receiveTimeout: Constants.apiTimeOut,
-      // sendTimeout: Constants.apiTimeOut,
+    );
+
+    dio.interceptors.add(
+      QueuedInterceptorsWrapper(
+        onRequest: (req, handle) {
+          return handle.next(req);
+        },
+        onResponse: (res, handle) {
+          return handle.next(res);
+        },
+        onError: (error, handler) {
+          return handler.next(error);
+        },
+      ),
     );
 
     if (!kReleaseMode) {
@@ -52,7 +65,11 @@ enum DataSource {
   UNAUTORISED,
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
-  DEFAULT, CONNECT_TIMEOUT, SEND_TIMEOUT, RECIEVE_TIMEOUT, CANCEL
+  DEFAULT,
+  CONNECT_TIMEOUT,
+  SEND_TIMEOUT,
+  RECIEVE_TIMEOUT,
+  CANCEL
 }
 
 extension DataSourceExtension on DataSource {
@@ -82,8 +99,9 @@ extension DataSourceExtension on DataSource {
       case DataSource.DEFAULT:
         return Failure(
             ResponseCode.DEFAULT, "ResponseMessage.DEFAULT.tr(mContext)");
-      default:  return Failure(
-          ResponseCode.DEFAULT, "ResponseMessage.DEFAULT.tr(mContext)");
+      default:
+        return Failure(
+            ResponseCode.DEFAULT, "ResponseMessage.DEFAULT.tr(mContext)");
     }
   }
 }

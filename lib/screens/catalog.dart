@@ -2,55 +2,74 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/controller/main_controller.dart';
+import 'package:flutter_app/models/cart_model.dart';
+import 'package:flutter_app/models/categories.dart';
+import 'package:flutter_app/models/movie.dart';
 import 'package:flutter_app/models/thumb.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
-import '../blocs/MovieBloc.dart';
-import '../models/cart_model.dart';
-import '../models/categories.dart';
-import '../models/movie.dart';
-
-class MyCatalog extends StatelessWidget {
+class MyCatalog extends StatefulWidget {
   final List<Photo> photos;
 
   const MyCatalog({super.key, required this.photos});
 
   @override
+  State<MyCatalog> createState() => _MyCatalogState();
+}
+
+class _MyCatalogState extends State<MyCatalog> {
+  MainController get controller => Get.find();
+
+  @override
   Widget build(BuildContext context) {
-    final bloc = context.read<MoviesBloc>();
-    bloc.fetchAllMovies();
-    final data = context.read<CartModel>();
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('Popular Movies'),
-        ),
-        body:
-        StreamBuilder(
-          stream: bloc.allMovies,
-          builder: (context, AsyncSnapshot<ItemModel> snapshot) {
-            if (snapshot.hasData) {
-              return buildList(snapshot);
-            } else if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
-        ),
-        );
+    controller.fetchAllMovies();
+    // final data = context.read<CartModel>();
+    return StreamBuilder(
+      stream: controller.allMovies,
+      builder: (context, AsyncSnapshot<ItemModel> snapshot) {
+        if (snapshot.hasData) {
+          return buildList(snapshot, controller.count.value);
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error.toString());
+        }
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
   }
 
-  Widget buildList(AsyncSnapshot<ItemModel> snapshot) {
+  Widget buildList(AsyncSnapshot<ItemModel> snapshot, [int size = 0]) {
     return GridView.builder(
-        itemCount: snapshot.data?.results.length,
-        gridDelegate:
-            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-        itemBuilder: (BuildContext context, int index) {
-          return Image.network(
-            'https://image.tmdb.org/t/p/w185${snapshot.data?.results[index].poster_path}',
-            fit: BoxFit.cover,
-          );
-        });
+      itemCount: (snapshot.data?.results.length ?? 0),
+      gridDelegate:
+          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+      itemBuilder: (BuildContext context, int index) {
+        return InkWell(
+          onTap: () {
+            Navigator.of(context).pushNamed(
+              '/detailMovie',
+              arguments: snapshot.data?.results[index],
+            );
+          },
+          child: CachedNetworkImage(
+            imageUrl:
+                'https://image.tmdb.org/t/p/w185${snapshot.data?.results[index].poster_path}',
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => const Icon(Icons.error),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -122,7 +141,7 @@ class _MyListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _item = Item(item.id, item.name);
+    var mItem = Item(item.id, item.name);
 
     var textTheme = Theme.of(context).textTheme.titleLarge;
 
@@ -134,35 +153,17 @@ class _MyListItem extends StatelessWidget {
           children: [
             AspectRatio(
               aspectRatio: 1,
-              child: Container(
-                child: Image.network(photo?.url ?? ""),
-              ),
+              child: Image.network(photo?.url ?? ''),
             ),
             const SizedBox(width: 24),
             Expanded(
-              child: Text(_item.name, style: textTheme),
+              child: Text(mItem.name, style: textTheme),
             ),
             const SizedBox(width: 24),
-            _AddButton(item: _item),
+            _AddButton(item: mItem),
           ],
         ),
       ),
     );
   }
 }
-// CustomScrollView(
-// slivers: [
-// _MyAppBar(),
-// SliverList(
-// delegate: SliverChildBuilderDelegate(
-// (ctx, index) {
-// return Builder(builder: (context) {
-// final item = context.select<CatalogModel, Item>(
-// (cart) => cart.getByPosition(index));
-// return _MyListItem(item, null);
-// });
-// },
-// ),
-// )
-// ],
-// )

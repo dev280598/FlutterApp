@@ -2,15 +2,15 @@ class ItemModel {
   int? _page;
   int? _total_results;
   int? _total_pages;
-  List<_Result> _results = [];
+  List<Movie> _results = [];
 
   ItemModel.fromJson(Map<String, dynamic> parsedJson) {
     _page = parsedJson['page'];
     _total_results = parsedJson['total_results'];
     _total_pages = parsedJson['total_pages'];
-    List<_Result> temp = [];
+    List<Movie> temp = [];
     for (int i = 0; i < parsedJson['results'].length; i++) {
-      _Result result = _Result(parsedJson['results'][i]);
+      Movie result = Movie(parsedJson['results'][i]);
       temp.add(result);
     }
     _results = temp;
@@ -21,11 +21,11 @@ class ItemModel {
       'results': _results.map((e) => e.toJson()).toList(),
       'page': _page,
       'total_results': _total_results,
-      "total_pages": _total_pages,
+      'total_pages': _total_pages,
     };
   }
 
-  List<_Result> get results => _results;
+  List<Movie> get results => _results;
 
   int? get total_pages => _total_pages;
 
@@ -34,7 +34,7 @@ class ItemModel {
   int? get page => _page;
 }
 
-class _Result {
+class Movie {
   int? _vote_count;
   int? _id;
   bool? _video;
@@ -50,7 +50,7 @@ class _Result {
   String? _overview;
   String? _release_date;
 
-  _Result(result) {
+  Movie(result) {
     _vote_count = result['vote_count'];
     _id = result['id'];
     _video = result['video'];
@@ -74,17 +74,17 @@ class _Result {
       'vote_count': vote_count,
       'id': id,
       'video': video,
-      "vote_average": vote_average,
+      'vote_average': vote_average,
       'title': title,
       'popularity': popularity,
       'poster_path': poster_path,
-      "original_language": original_language,
+      'original_language': original_language,
       'original_title': original_title,
       'genre_ids': genre_ids,
       'backdrop_path': backdrop_path,
-      "adult": adult,
+      'adult': adult,
       'overview': _overview,
-      "release_date": _release_date,
+      'release_date': _release_date,
     };
   }
 

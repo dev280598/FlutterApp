@@ -6,7 +6,11 @@ import 'package:injectable/injectable.dart';
 
 @injectable
  class ApiClient  {
-  Dio getClient() {
+  Dio getCoreClient() {
     return DioFactory().getDio();
+  }
+
+  Dio getTestClient() {
+    return DioFactory().getDio(isCore: false);
   }
 }
